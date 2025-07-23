@@ -9,7 +9,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket               = "shd-com-bucket-tfstate-shearesweb"
+    bucket               = "com-all-bucket-terraform-state-algebananazzzzz"
     key                  = "lambda-docker.tfstate"
     workspace_key_prefix = "tf-state"
     region               = "ap-southeast-1"
