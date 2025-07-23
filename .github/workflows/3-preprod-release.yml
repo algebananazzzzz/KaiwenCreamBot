@@ -1,0 +1,106 @@
+# .github/workflows/preprod-deployment.yml
+name: Pre-production Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc' # e.g., v1.2.0-rc
+
+jobs:
+  infra-deploy-preprod:
+    name: Provision Infrastructure (Pre-production)
+    runs-on: ubuntu-latest
+    environment: preprod
+
+    outputs:
+      ECR_REPOSITORY_URL: ${{ steps.deploy.outputs.ecr_repository_url }}
+      FUNCTION_NAME: ${{ steps.deploy.outputs.function_name }}
+
+    steps:
+      - name: 1. ⬇️ Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 2. 🔐 Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: 3. ⚙️ Setup Terraform CLI
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+      - name: 4. 🚀 Apply Terraform for Pre-production Infra
+        id: deploy
+        working-directory: infra
+        run: |
+          terraform init -input=false
+          terraform workspace select -or-create preprod-app
+          terraform plan --var-file=config/preprod.tfvars -out=output.tfplan -input=false
+          terraform apply -input=false --auto-approve output.tfplan
+          echo "ECR_REPOSITORY_URL=$(terraform output -raw ecr_repository_url)" >> $GITHUB_OUTPUT
+          echo "FUNCTION_NAME=$(terraform output -raw function_name)" >> $GITHUB_OUTPUT
+
+ 
+  docker-deploy-preprod:
+    name: Build & Deploy Docker to Lambda (Preprod)
+    runs-on: ubuntu-latest
+    environment: preprod
+    needs: infra-deploy-preprod
+    if: success()
+
+    steps:
+      - name: 1. ⬇️ Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 2. 🔐 Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: 3. 🐳 Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v4
+
+      - name: 4. 🏷️ Set Docker Image Tag
+        id: vars
+        run: echo "TAG=preprod-${{ github.sha }}" >> $GITHUB_ENV
+
+      - name: 5. 🛠️ Build Docker Image
+        run: |
+          docker build -t ${{ needs.infra-deploy-preprod.outputs.ECR_REPOSITORY_URL }}:$TAG .
+
+      - name: 6. 📤 Push Docker Image to ECR
+        run: |
+          docker push ${{ needs.infra-deploy-preprod.outputs.ECR_REPOSITORY_URL }}:$TAG
+
+      - name: 7. 🔄 Update Lambda Function with New Image
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ needs.infra-deploy-preprod.outputs.FUNCTION_NAME }} \
+            --image-uri ${{ needs.infra-deploy-preprod.outputs.ECR_REPOSITORY_URL }}:$TAG
+
+            
+  promote-rc-tag:
+    name: 🏷️ Promote RC Tag to Production
+    runs-on: ubuntu-latest
+    needs: docker-deploy-preprod
+    if: success()
+    permissions: write-all
+
+    steps:
+      - name: 1. 🏷️ Create Git Tag for Production
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = context.ref.replace(/^refs\/tags\//, '').replace(/-rc$/, '');
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${version}`,
+              sha: context.sha
+            });

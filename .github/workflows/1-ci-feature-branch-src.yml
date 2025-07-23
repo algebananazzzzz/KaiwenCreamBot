@@ -1,0 +1,41 @@
+# .github/workflows/ci-feature-branch.yml
+name: Feature Branch CI (src)
+
+# Triggers:
+# - Manual trigger via GitHub UI from branches (workflow_dispatch)
+# - Automatic on pushes to specific feature branches
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'feat/**'
+      - 'feature/**'
+      - 'JIRA/**'
+    paths:
+      - src/**
+
+jobs:
+  lint-and-unit-tests:
+    name: Static Analysis & Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. ⬇️ Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 2. ⚙️ Setup Golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: "^1.22.0"
+          cache: true
+          cache-dependency-path: src/go.sum
+
+      - name: 3. 🧪 Run Golang Unit Tests
+        working-directory: src
+        run: go test -coverprofile coverage.out ./...
+
+      - name: 4. 📦 Upload Test Coverage Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage
+          path: src/coverage.out
