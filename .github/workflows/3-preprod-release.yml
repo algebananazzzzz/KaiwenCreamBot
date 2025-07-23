@@ -19,7 +19,9 @@ jobs:
     steps:
       - name: 1. ⬇️ Checkout Code
         uses: actions/checkout@v4
-
+        with:
+          submodules: true
+          
       - name: 2. 🔐 Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -84,7 +86,7 @@ jobs:
             --function-name ${{ needs.infra-deploy-preprod.outputs.FUNCTION_NAME }} \
             --image-uri ${{ needs.infra-deploy-preprod.outputs.ECR_REPOSITORY_URL }}:$TAG
 
-            
+
   promote-rc-tag:
     name: 🏷️ Promote RC Tag to Production
     runs-on: ubuntu-latest

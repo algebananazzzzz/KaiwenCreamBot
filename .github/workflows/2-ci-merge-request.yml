@@ -20,4 +20,4 @@ jobs:
         run: docker build -t lambda-docker .
 
       - name: 3. 🔍 Smoke Test Docker Container
-        run: timeout 10 docker run --rm lambda-docker
+        run: timeout 10 docker run --rm lambda-docker || [[ $? -eq 124 ]]
