@@ -15,5 +15,7 @@ build({
     sourcemap: true,
     external: [
         ...Object.keys(dependencies),
+        '@sparticuz/chromium',
+        'puppeteer-core',
     ],
 }).catch(() => process.exit(1));
