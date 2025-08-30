@@ -6,9 +6,7 @@ FROM node:20-bookworm AS build
 WORKDIR /app
 
 # Copy all files (including package.json and tsconfig.json)
-COPY ./src/package*.json ./
-COPY ./src/esbuild.config.mjs ./
-COPY ./src ./src
+COPY ./src ./
 
 # Install build dependencies
 RUN apt-get update && \
