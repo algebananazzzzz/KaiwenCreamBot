@@ -8,7 +8,6 @@
     "lint": "eslint ./",
     "build": "node esbuild.config.mjs"
   },
-  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",

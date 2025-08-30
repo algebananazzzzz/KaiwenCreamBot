@@ -9,7 +9,7 @@ build({
     entryPoints: ['./index.ts'],
     outdir: 'dist',
     bundle: true,
-    format: 'esm',
+    format: 'cjs',
     platform: 'node',
     target: 'node20',
     sourcemap: true,
