@@ -59,37 +59,33 @@ jobs:
     if: success()
 
     steps:
-      - name: ⬇️ Checkout Code
+      - name: 1. ⬇️ Checkout Code
         uses: actions/checkout@v4
 
-      - name: 🔐 Configure AWS Credentials
+      - name: 2. 🔐 Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: 🛠️ Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: 🐳 Log in to Amazon ECR
+      - name: 3. 🐳 Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: 🏷️ Set Docker Image Tag
+      - name: 4. 🏷️ Set Docker Image Tag
         id: vars
         run: echo "TAG=prd-${{ github.sha }}" >> $GITHUB_ENV
 
-      - name: 🛠️ Build and Push Docker Image to ECR
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ needs.infra-deploy-prd.outputs.ECR_REPOSITORY_URL }}:${{ env.TAG }}
-          cache-from: type=registry,ref=${{ needs.infra-deploy-prd.outputs.ECR_REPOSITORY_URL }}:latest
-          cache-to: type=inline
+      - name: 5. 🛠️ Build Docker Image
+        run: |
+          docker build -t ${{ needs.infra-deploy-prd.outputs.ECR_REPOSITORY_URL }}:$TAG .
 
-      - name: 🔄 Update Lambda Function with New Image
+      - name: 6. 📤 Push Docker Image to ECR
+        run: |
+          docker push ${{ needs.infra-deploy-prd.outputs.ECR_REPOSITORY_URL }}:$TAG
+
+      - name: 7. 🔄 Update Lambda Function with New Image
         run: |
           aws lambda update-function-code \
             --function-name ${{ needs.infra-deploy-prd.outputs.FUNCTION_NAME }} \
