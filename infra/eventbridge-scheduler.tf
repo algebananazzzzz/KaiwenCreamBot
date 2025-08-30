@@ -18,7 +18,7 @@ resource "aws_scheduler_schedule" "scheduler" {
     mode = "OFF"
   }
 
-  schedule_expression          = "cron(0/10 * * * ? *)"
+  schedule_expression          = "cron(0/30 * * * ? *)"
   schedule_expression_timezone = "Asia/Singapore"
 
   target {
