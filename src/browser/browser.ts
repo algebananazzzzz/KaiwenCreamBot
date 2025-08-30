@@ -8,7 +8,8 @@ export async function launchBrowser(isProduction: boolean) {
     const browser = await puppeteer.launch({
         headless: isProduction,
         args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        executablePath: "/usr/bin/google-chrome",
+        executablePath: process.env.CHROME_PATH || "/usr/bin/chromium-browser",
+        dumpio: true, // pipe chromium logs into CloudWatch
     });
     logStep("Browser launch", start);
     return browser;
