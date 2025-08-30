@@ -15,7 +15,6 @@
   "devDependencies": {
     "@eslint/js": "^9.34.0",
     "@jest/globals": "^29.7.0",
-    "@sparticuz/chromium": "127.0",
     "@types/node": "^24.2.0",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
@@ -31,10 +30,11 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.879.0",
     "@aws-sdk/lib-dynamodb": "^3.879.0",
+    "@sparticuz/chromium": "^131.0.1",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.1",
     "jiti": "^2.5.1",
     "luxon": "^3.7.1",
-    "puppeteer-core": "22.15.0"
+    "puppeteer-core": "^23.9.0"
   }
 }

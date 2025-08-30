@@ -1,7 +1,10 @@
 import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium"
 import { performance } from "perf_hooks";
 import { logStep } from "../helpers";
+const chromium = require("@sparticuz/chromium");
+
+chromium.setHeadlessMode = true;
+chromium.setGraphicsMode = false;
 
 export async function launchBrowser(isProduction: boolean) {
     const start = performance.now();

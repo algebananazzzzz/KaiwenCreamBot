@@ -18,24 +18,6 @@ RUN npm run build
 # Use Lambda base image
 FROM public.ecr.aws/lambda/nodejs:22
 
-RUN apt-get update && apt-get install -y \
-    libnss3 \
-    libnspr4 \
-    libxss1 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libxkbcommon0 \
-    libgbm1 \
-    ca-certificates \
-    --no-install-recommends \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
 # Set working directory inside runtime container
 WORKDIR /app
 
