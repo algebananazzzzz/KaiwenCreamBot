@@ -1,6 +1,6 @@
 # -------- Stage 1: Build the application --------
 # Use a lightweight Node.js image with npm for building
-FROM node:20-alpine AS build
+FROM node:20-bookworm AS build
 
 # Set working directory inside container
 WORKDIR /app
