@@ -71,6 +71,7 @@ async function main() {
     });
 
     const allJobs = [...saJobs, ...internJobs]
+    console.log(`📋 Found ${allJobs.length} in total`)
     const newJobs = await filterNewJobs(allJobs);
 
     const timestamp = DateTime.now()
@@ -89,7 +90,6 @@ async function main() {
             )
         ].join("\n\n");
 
-        console.log(message);
         await telegramClient.sendMessage(message);
     }
 

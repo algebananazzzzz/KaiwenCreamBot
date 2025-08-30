@@ -1,16 +1,23 @@
 import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium"
 import { performance } from "perf_hooks";
 import { logStep } from "../helpers";
 
 export async function launchBrowser(isProduction: boolean) {
     const start = performance.now();
 
+    const headlessType = isProduction ? "shell" : false;
     const browser = await puppeteer.launch({
-        headless: isProduction,
-        args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        executablePath: process.env.CHROME_PATH || "/usr/bin/google-chrome",
-        dumpio: true, // pipe chromium logs into CloudWatch
+        args: isProduction
+            ? puppeteer.defaultArgs({ args: chromium.args, headless: headlessType })
+            : [],
+        defaultViewport: chromium.defaultViewport,
+        executablePath: isProduction
+            ? await chromium.executablePath()
+            : "/usr/bin/google-chrome",
+        headless: headlessType,
     });
+
     logStep("Browser launch", start);
     return browser;
 }

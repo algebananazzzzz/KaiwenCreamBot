@@ -16,7 +16,7 @@ class TelegramClient {
             throw new Error("Telegram bot token and channel id must be specified.");
         }
         this.botToken = botToken;
-        this.channelId = channelId
+        this.channelId = channelId;
     }
 
     public async sendMessage(message: string, maxRetries = 5) {
