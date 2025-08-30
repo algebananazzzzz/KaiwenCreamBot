@@ -4,6 +4,7 @@ export let telegramClient: TelegramClient
 
 export function initializeTelegramClient(botToken: string, channelId: string) {
     telegramClient = new TelegramClient(botToken, channelId)
+    console.log('✅ Telegram client initialized');
 }
 
 class TelegramClient {

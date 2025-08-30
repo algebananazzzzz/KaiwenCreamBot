@@ -7,6 +7,7 @@ export let dynamodbClient: DynamodbClient
 
 export function initializeDynamodbClient(tableName: string) {
     dynamodbClient = new DynamodbClient(tableName)
+    console.log('✅ Dynamodb client initialized');
 }
 
 class DynamodbClient {

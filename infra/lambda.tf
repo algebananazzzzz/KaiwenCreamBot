@@ -13,6 +13,10 @@ module "lambda_function" {
 
   depends_on = [null_resource.push_placeholder_image]
 
+  timeout                = 30
+  memory_size            = 512
+  ephemeral_storage_size = 512
+
   environment_variables = {
     DYNAMODB_TABLE_NAME = aws_dynamodb_table.table.name
     TELEGRAM_CHANNEL_ID = var.telegram_channel_id

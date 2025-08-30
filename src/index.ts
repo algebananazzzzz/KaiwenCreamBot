@@ -104,3 +104,7 @@ export const handler = async (event) => {
     };
     return response;
 };
+
+if (!isProduction) {
+    main()
+}
