@@ -1,5 +1,7 @@
-# Test coverage files
-**/cover.out
+# Node.js
+**/node_modules/
+**/dist/
+**/coverage
 
 # Environment variables
 .env

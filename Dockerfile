@@ -1,25 +1,35 @@
-# Stage 1: Build Go binary
-FROM golang:1.23-alpine AS builder
+# -------- Stage 1: Build the application --------
+# Use a lightweight Node.js image with npm for building
+FROM node:20-alpine AS build
 
+# Set working directory inside container
 WORKDIR /app
 
-# Install git and SSL libraries if needed
-RUN apk add --no-cache git
+# Copy all files (including package.json and tsconfig.json)
+COPY ./package*.json ./
+COPY ./esbuild.config.mjs ./
+COPY ./src ./src
 
-# Copy and download dependencies
-COPY go.mod go.sum ./
-RUN go mod download
+# Install all dependencies (production + dev)
+RUN npm ci
 
-# Copy source and build
-COPY src/ .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bootstrap main.go
+# Build the TypeScript project (output to /app/dist)
+RUN npm run build
 
-# Stage 2: Lambda-compatible runtime
-FROM public.ecr.aws/lambda/provided:al2
+# -------- Stage 2: Create the runtime image --------
+# Use Puppeteer base image with Chromium and deps preinstalled
+FROM ghcr.io/puppeteer/puppeteer:22.15.0
 
-# Copy built binary
-COPY --from=builder /app/bootstrap /var/task/bootstrap
-RUN chmod +x /var/task/bootstrap
+# Set working directory inside runtime container
+WORKDIR /app
 
-# Lambda will call /var/task/bootstrap by default
-CMD ["/var/task/bootstrap"]
+# Copy built app and required files from the build stage
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json .
+
+# Set environment variables
+ENV ENVIRONMENT=production
+
+# Define default command to run the bot
+CMD ["node", "dist/index.js"]

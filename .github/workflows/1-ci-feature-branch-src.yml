@@ -20,22 +20,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 1. ⬇️ Checkout Code
+      - name: ⬇️ Checkout Code
         uses: actions/checkout@v4
 
-      - name: 2. ⚙️ Setup Golang
-        uses: actions/setup-go@v5
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          go-version: "^1.22.0"
-          cache: true
-          cache-dependency-path: src/go.sum
+          node-version: "20"
+          cache: "npm"
 
-      - name: 3. 🧪 Run Golang Unit Tests
+      - name: 📦 Install Dependencies
         working-directory: src
-        run: go test -coverprofile coverage.out ./...
+        run: npm ci
 
-      - name: 4. 📦 Upload Test Coverage Artifacts
+      - name: 🧹 Run Linter
+        working-directory: src
+        run: npm run lint
+
+      - name: 🧪 Run Unit Tests
+        working-directory: src
+        run: npm test -- --coverage --passWithNoTests
+
+      - name: 📄 Upload Test Coverage Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: test-coverage
-          path: src/coverage.out
+          path: src/coverage

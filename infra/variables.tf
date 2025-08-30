@@ -10,3 +10,11 @@ variable "project_code" {
 variable "env" {
   description = "The target environment to which the resources will be deployed."
 }
+
+variable "telegram_bot_token" {
+  description = "The telegram bot token provided by botfather."
+}
+
+variable "telegram_channel_id" {
+  description = "The telegram channel ID to send updates."
+}
