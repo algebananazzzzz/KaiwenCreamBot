@@ -6,8 +6,8 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copy all files (including package.json and tsconfig.json)
-COPY .src/package*.json ./
-COPY .src/esbuild.config.mjs ./
+COPY ./src/package*.json ./
+COPY ./src/esbuild.config.mjs ./
 COPY ./src ./src
 
 # Install all dependencies (production + dev)
