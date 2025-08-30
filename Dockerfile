@@ -18,6 +18,27 @@ RUN npm run build
 # Use Lambda base image
 FROM public.ecr.aws/lambda/nodejs:22
 
+RUN yum install -y \
+    atk \
+    at-spi2-atk \
+    cups-libs \
+    libdrm \
+    libXcomposite \
+    libXcursor \
+    libXdamage \
+    libXext \
+    libXi \
+    libXrandr \
+    libXtst \
+    pango \
+    xorg-x11-server-Xvfb \
+    libX11 \
+    libxcb \
+    libXrender \
+    nss \
+    nspr \
+    && yum clean all
+
 # Set working directory inside runtime container
 WORKDIR /app
 
