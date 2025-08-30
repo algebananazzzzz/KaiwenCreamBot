@@ -96,4 +96,11 @@ async function main() {
     await browser.close();
 }
 
-main();
+export const handler = async (event) => {
+    await main();
+    const response = {
+        statusCode: 200,
+        body: JSON.stringify('✅ Web scraping automation completed'),
+    };
+    return response;
+};
