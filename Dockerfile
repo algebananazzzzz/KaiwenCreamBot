@@ -10,6 +10,15 @@ COPY ./src/package*.json ./
 COPY ./src/esbuild.config.mjs ./
 COPY ./src ./src
 
+# Install build dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    g++ \
+    make \
+    cmake \
+    unzip \
+    libcurl4-openssl-dev
+
 # Install all dependencies (production + dev)
 RUN npm ci
 
