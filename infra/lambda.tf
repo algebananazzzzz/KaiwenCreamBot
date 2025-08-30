@@ -14,7 +14,7 @@ module "lambda_function" {
   depends_on = [null_resource.push_placeholder_image]
 
   timeout                = 30
-  memory_size            = 512
+  memory_size            = 1024
   ephemeral_storage_size = 512
 
   environment_variables = {
