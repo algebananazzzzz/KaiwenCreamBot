@@ -26,13 +26,13 @@ RUN npm install aws-lambda-ric
 # Build the TypeScript project (output to /app/dist)
 RUN npm run build
 
-# Required for Node runtimes which use npm@8.6.0+ because
-# by default npm writes logs under /home/.npm and Lambda fs is read-only
-ENV NPM_CONFIG_CACHE=/tmp/.npm
-
 # -------- Stage 2: Create the runtime image --------
 # Use Puppeteer base image with Chromium and deps preinstalled
 FROM ghcr.io/puppeteer/puppeteer:22.15.0
+
+# Required for Node runtimes which use npm@8.6.0+ because
+# by default npm writes logs under /home/.npm and Lambda fs is read-only
+ENV NPM_CONFIG_CACHE=/tmp/.npm
 
 # Set working directory inside runtime container
 WORKDIR /app
