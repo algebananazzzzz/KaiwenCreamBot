@@ -1,2 +1,2 @@
-project_code = "kaboomcareers"
+project_code = "kaiwencreambot"
 env          = "prd"

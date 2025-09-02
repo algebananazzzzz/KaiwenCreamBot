@@ -1,3 +1,5 @@
+import { KAIWEN_STICKERS } from "../constants/kaiwen";
+
 const TELEGRAM_MAX_LENGTH = 4096;
 
 export let telegramClient: TelegramClient
@@ -18,6 +20,57 @@ class TelegramClient {
         this.botToken = botToken;
         this.channelId = channelId;
     }
+
+    public async sendCream(maxRetries = 5) {
+        const url = `https://api.telegram.org/bot${this.botToken}/sendSticker`;
+
+        const sticker = KAIWEN_STICKERS[Math.floor(Math.random() * KAIWEN_STICKERS.length)];
+
+        const payload = {
+            chat_id: this.channelId,
+            sticker,
+        };
+
+        let success = false;
+
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                const result = await response.json();
+
+                if (!result.ok) {
+                    throw new Error(`Telegram API error: ${result.description}`);
+                }
+
+                success = true;
+                console.log("✅ Sticker sent successfully!");
+                break;
+            } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : String(err);
+                const isLastAttempt = attempt === maxRetries;
+                const delay = Math.pow(2, attempt) * 500;
+
+                console.warn(
+                    `⚠️ Sending sticker failed (attempt ${attempt + 1}): ${errorMessage}${isLastAttempt ? "" : `. Retrying in ${delay}ms...`
+                    }`
+                );
+
+                if (isLastAttempt) {
+                    throw new Error(`❌ Failed to send sticker after ${maxRetries + 1} attempts.`);
+                }
+
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+
+        return success;
+    }
+
 
     public async sendMessage(message: string, maxRetries = 5) {
         const url = `https://api.telegram.org/bot${this.botToken}/sendMessage`;
